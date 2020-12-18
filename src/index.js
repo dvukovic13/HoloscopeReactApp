@@ -1,83 +1,107 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { StaticMap } from 'react-map-gl';
-import DeckGL from '@deck.gl/react';
-import {PolygonLayer} from '@deck.gl/layers';
+import DeckGL, {GeoJsonLayer} from 'deck.gl';
+import {StaticMap} from 'react-map-gl';
+import ReactDOM from 'react-dom'
+import {MapboxLayer} from '@deck.gl/mapbox';
 
 
-var rawPodaci = JSON.stringify(require('./spratovi.json'));
 
-//var geoJSON = JSON.parse(rawPodaci);
-var geoJSON = [
-      {
-         // Simple polygon (array of coords)
-        contour: [[-122.4, 37.7], [-122.4, 37.8], [-122.5, 37.8], [-122.5, 37.7], [-122.4, 37.7]],
-         zipcode: 94107,
-         population: 26599,
-         area: 6.11
-       },
-       {
-         // Complex polygon with holes (array of rings)
-         contour: [
-           [[-122.4, 37.7], [-122.4, 37.8], [-122.5, 37.8], [-122.5, 37.7], [-122.4, 37.7]],
-           [[-122.45, 37.73], [-122.47, 37.76], [-122.47, 37.71], [-122.45, 37.73]]
-         ],
-     zipcode: 94107,
-         population: 26599,
-         area: 6.11
-       },
-      
-     ];
-console.log(geoJSON);
-
-function App(){
-
-    //var rawPodaci = fs.readFileSync("spratovi4.geojson", "utf8");
-      
-    const layer = new PolygonLayer({
-        id: 'polygon-layer',
-        geoJSON,
-        pickable: true,
-        stroked: true,
-        filled: true,
-        wireframe: true,
-        lineWidthMinPixels: 1,
-        getPolygon: d => d.contour,
-        getElevation: d => d.population / d.area / 10,
-        getFillColor: d => [d.population / d.area / 60, 140, 0],
-        getLineColor: [80, 80, 80],
-        getLineWidth: 1
-      });
-    
-      
-     
-
-    return (
-        <React.Fragment>
-            <DeckGL
-                initialViewState={{
-                longitude: 17.1974,
-                latitude: 44.7778,
-                zoom: 15.5,
-                bearing: 0,
-                pitch: 60,
-                }}
-                layers={[layer]}
-                height="100%"
-                width="100%"
-                controller={true} 
-            >
-            <StaticMap
-                mapStyle="mapbox://styles/mapbox/dark-v10"
-                mapboxApiAccessToken="pk.eyJ1IjoiZHZ1a292aWMiLCJhIjoiY2toaHBpczUxMHhpYjJ5bndlNG05dWV2cCJ9.dNwJsrJM0OsLj46OGKSJIQ"
-            />
-            </DeckGL>
-        </React.Fragment>
-    )
-
+const INITIAL_VIEW_STATE = {
+  longitude: 17.1974,
+	  latitude: 44.7778,
+	  zoom: 15.5,
+	  bearing: 0,
+	  pitch: 60,
 }
 
+var pickedBuilding = null;
 
+export class App extends React.Component {
+  state = {};
+
+  // DeckGL and mapbox will both draw into this WebGL context
+  _onWebGLInitialized = (gl) => {
+    this.setState({gl});
+  }
+
+  // Add deck layer to mapbox
+  _onMapLoad = () => {
+    const map = this._map;
+    const deck = this._deck;
+    map.addLayer(new MapboxLayer({id: 'PolygonLayer', deck}), 'waterway-label');
+    //map.getLayer("")
+  }
+  
+  render() {
+    const {gl} = this.state;
+    const layer = new GeoJsonLayer({
+      id: 'PolygonLayer',
+      data: 'https://raw.githubusercontent.com/dvukovic13/HoloscopeReactApp/main/spratovi2.geojson',
+      opacity: 1,
+      /* props from PolygonLayer class */
+      
+      // elevationScale: 1,
+      extruded: true,
+      filled: true,
+     // dataTransform: d => d.features,
+      getElevation: d => d.properties.height,
+      getFillColor: d => [60, 140, 0],
+      getLineColor: [80, 80, 80],
+      //getLineWidth: d => 1,
+      //getPolygon: d => d.geometry.coordinates,
+      // lineJointRounded: false,
+      // lineMiterLimit: 4,
+      // lineWidthMaxPixels: Number.MAX_SAFE_INTEGER,
+      lineWidthMinPixels: 1,
+      // lineWidthScale: 1,
+      // lineWidthUnits: 'meters',
+      // material: true,
+      stroked: false,
+      wireframe: true,
+      
+      /* props inherited from Layer class */
+      
+      // autoHighlight: false,
+      // coordinateOrigin: [0, 0, 0],
+      // coordinateSystem: COORDINATE_SYSTEM.LNGLAT,
+      // highlightColor: [0, 0, 128, 128],
+      // modelMatrix: null,
+      // opacity: 1,
+      pickable: true,
+      onClick: (event) => { pickedBuilding=JSON.stringify(event.object); console.log(pickedBuilding); return true; }
+      // visible: true,
+      // wrapLongitude: false,
+    });
+    
+
+    return (
+      <DeckGL
+        ref={ref => {
+          // save a reference to the Deck instance
+          this._deck = ref && ref.deck;
+        }}
+        layers={layer}
+        initialViewState={INITIAL_VIEW_STATE}
+        controller={true}
+        onClick={() => { console.log("DeckGL");  }}
+        onWebGLInitialized={this._onWebGLInitialized}
+      >
+        {gl && (
+          <StaticMap
+            ref={ref => {
+              // save a reference to the mapboxgl.Map instance
+              this._map = ref && ref.getMap();
+            }}
+            gl={gl}
+            mapStyle="mapbox://styles/mapbox/dark-v10"
+            mapboxApiAccessToken="pk.eyJ1IjoiZHZ1a292aWMiLCJhIjoiY2toaHBpczUxMHhpYjJ5bndlNG05dWV2cCJ9.dNwJsrJM0OsLj46OGKSJIQ"
+            onLoad={this._onMapLoad}
+          />
+        )}
+      </DeckGL>
+    );
+  }
+}
 
     
 ReactDOM.render(<App />, document.getElementById('app'));
