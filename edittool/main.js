@@ -109,7 +109,7 @@ function createScene(){
     text1.fontSize = 16;
     text1.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
     text1.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
-   
+   	text1.left = "10px";
     
     advancedTexture.addControl(text1);
     
