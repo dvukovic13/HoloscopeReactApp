@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {useState} from 'react';
 import DeckGL, {GeoJsonLayer} from 'deck.gl';
-import {StaticMap} from 'react-map-gl';
+import {StaticMap, Marker, Popup} from 'react-map-gl';
 import ReactDOM from 'react-dom'
 import {MapboxLayer} from '@deck.gl/mapbox';
 
@@ -16,28 +16,84 @@ const INITIAL_VIEW_STATE = {
 
 var pickedBuilding = null;
 
+const editPopup = ({pickedBuilding, closePopup}) => {
+  return (
+    <Popup
+      latitude={JSON.parse(pickedBuilding).properties.height}
+     // longitude={marker.longitude}
+      onClose={closePopup}
+      closeButton={true}
+      closeOnClick={false}
+      offsetTop={-30}
+     >
+      <p>{JSON.parse(pickedBuilding).properties.height}</p>
+    </Popup>
+  )};
+
+  // const renderPopup = () => {
+  //   if (pickedBuilding !== null && pickedBuilding !== undefined) {
+  //     return (
+  //       <Popup
+  //         captureClick
+  //         closeButton={false}
+  //         closeOnClick
+  //         longitude={selectedPoint.geometry.coordinates[0]}
+  //         latitude={selectedPoint.geometry.coordinates[1]}
+  //         onClose={deselectPoint}
+  //         className={styles.popup}
+  //         offsetTop={-10}
+  //       >
+  //         <div>{selectedPoint?.properties?.name}</div>
+  //       </Popup>
+  //     );
+  //   }
+  // };
+
+  const renderPopup = () => {
+    if (pickedBuilding !== null && pickedBuilding !== undefined){
+      return(
+        <Popup
+          anchor="bottom"
+          tipSize={10}
+          longitude={pickedBuilding.properties.coordinates[0][0]}
+          latitude={pickedBuilding.properties.coordinates[0][1]}
+          closeButton={true}
+          closeOnClick={true}
+          >
+            <div style="height:100px; width: 100px">
+              <p> lon = {pickedBuilding.properties.coordinates[0][0]} </p>
+              <p> lat = {pickedBuilding.properties.coordinates[0][1]} </p>
+            </div>
+        </Popup>
+      
+      );
+  }
+  }
+
 export class App extends React.Component {
   state = {};
-
+  
   // DeckGL and mapbox will both draw into this WebGL context
   _onWebGLInitialized = (gl) => {
     this.setState({gl});
   }
 
+  
   // Add deck layer to mapbox
   _onMapLoad = () => {
     const map = this._map;
     const deck = this._deck;
-    map.addLayer(new MapboxLayer({id: 'PolygonLayer', deck}), 'waterway-label');
+    map.addLayer(new MapboxLayer({id: 'buildings', deck}), 'waterway-label');
     //map.getLayer("")
   }
+  
   
   render() {
     const {gl} = this.state;
     const layer = new GeoJsonLayer({
-      id: 'PolygonLayer',
+      id: 'buildings',
       data: 'https://raw.githubusercontent.com/dvukovic13/HoloscopeReactApp/main/spratovi2.geojson',
-      opacity: 1,
+      opacity: 0.4,
       /* props from PolygonLayer class */
       
       // elevationScale: 1,
@@ -45,7 +101,7 @@ export class App extends React.Component {
       filled: true,
      // dataTransform: d => d.features,
       getElevation: d => d.properties.height,
-      getFillColor: d => [60, 140, 0],
+      getFillColor: d => [50, 191, 219],
       getLineColor: [80, 80, 80],
       //getLineWidth: d => 1,
       //getPolygon: d => d.geometry.coordinates,
@@ -61,14 +117,16 @@ export class App extends React.Component {
       
       /* props inherited from Layer class */
       
-      // autoHighlight: false,
+       autoHighlight: true,
       // coordinateOrigin: [0, 0, 0],
       // coordinateSystem: COORDINATE_SYSTEM.LNGLAT,
-      // highlightColor: [0, 0, 128, 128],
+       highlightColor: [255,255, 255, 128],
       // modelMatrix: null,
       // opacity: 1,
       pickable: true,
-      onClick: (event) => { pickedBuilding=JSON.stringify(event.object); console.log(pickedBuilding); return true; }
+      onHover: (event) => { console.log("hover"); 
+        return true;},
+      onClick: (event) => { pickedBuilding=event.object; console.log(JSON.stringify(pickedBuilding)); return true; }
       // visible: true,
       // wrapLongitude: false,
     });
@@ -83,9 +141,12 @@ export class App extends React.Component {
         layers={layer}
         initialViewState={INITIAL_VIEW_STATE}
         controller={true}
-        onClick={() => { console.log("DeckGL");  }}
+        onClick={() => { console.log("DeckGL"); //renderPopup(); 
+       }}
         onWebGLInitialized={this._onWebGLInitialized}
+        
       >
+        
         {gl && (
           <StaticMap
             ref={ref => {
@@ -96,12 +157,14 @@ export class App extends React.Component {
             mapStyle="mapbox://styles/mapbox/dark-v10"
             mapboxApiAccessToken="pk.eyJ1IjoiZHZ1a292aWMiLCJhIjoiY2toaHBpczUxMHhpYjJ5bndlNG05dWV2cCJ9.dNwJsrJM0OsLj46OGKSJIQ"
             onLoad={this._onMapLoad}
-          />
+            >
+            {renderPopup()}
+            </StaticMap>
         )}
       </DeckGL>
     );
   }
 }
-
+document.getElementById('app').style.width="1000px";
     
 ReactDOM.render(<App />, document.getElementById('app'));

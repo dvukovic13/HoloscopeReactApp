@@ -11,6 +11,7 @@
         "react-dom": "^16.9.0",
         "react-map-gl": "^6.0.0",
         "react-scripts": "^3.1.1",
+        "run": "^1.4.0",
         "start": "^5.1.0"
     },
     "scripts": {
