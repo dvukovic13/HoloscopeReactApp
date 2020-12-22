@@ -122,17 +122,26 @@
 						mbxContext,
 						{defaultLights: true}
 					);
+					
 					if(lines[0].length>0)
 						for (line of lines) {
+							
 							var lineOptions = {
 								geometry: line,
-								color: 0xffff00, // color based on latitude of endpoint
-								width: 1// random width between 1 and 2
+								color: 0xffff00, 
+								width: 2
 							}
 
 							lineMesh = tb.line(lineOptions);
-
-							tb.add(lineMesh)
+							tb.add(lineMesh);
+							for(point of line){
+								sphere = tb.sphere({color: 0xffff00,  radius: 0.02})
+								.setCoords([point[0], point[1],  point[2]]);
+								//.setCoords([INITIAL_VIEW_STATE.latitude, INITIAL_VIEW_STATE.longitude,  50]);
+								
+								tb.add(sphere);
+							}
+							console.log(sphere);
 						}
 
 				},
@@ -215,8 +224,8 @@
 			  "type": "FeatureCollection",
 			  "features": e.features
 		});
-
-			console.log(e.features[0].properties);
+			console.log(e);
+			//console.log(e.features[0].properties);
 
 		    izabrana = '{"type": "FeatureCollection",	"features": [{"type": "Feature","properties": '+JSON.stringify(e.features[0].properties)+', "geometry": '+JSON.stringify(e.features[0].geometry)+'}]}';
 			  
