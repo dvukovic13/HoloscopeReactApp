@@ -122,6 +122,7 @@ function createScene(){
     inputLon.height = "40px";
     inputLon.color = "white";
     inputLon.left = "-320px";
+    inputLon.top = "-5px";
     inputLon.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
     inputLon.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
 
@@ -130,6 +131,7 @@ function createScene(){
     inputLat.height = "40px";
     inputLat.color = "white";
     inputLat.left = "-160px";
+    inputLat.top = "-5px";
     inputLat.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
     inputLat.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
 
@@ -137,6 +139,7 @@ function createScene(){
     inputHeight.maxWidth = 0.2;
     inputHeight.height = "40px";
     inputHeight.color = "white";
+    inputHeight.top = "-5px";
     //inputHeight.left = "-50px";
     inputHeight.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
     inputHeight.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
@@ -264,14 +267,14 @@ function createScene(){
 
 
 	scene.onPointerMove = function() {
+		
 		mousemovef();
 	}
 
 
 	scene.onPointerUp = (e, pickResult) => {
 
-			if(scene.meshes!=null)
-				scene.meshes.forEach(mesh => {if (mesh.name == "node") mesh.material.diffuseColor = new BABYLON.Color3(1,1,0);})
+			
 	//	console.log(scene.pointerX, scene.pointerY);
 			//console.log(e.button);
 			if(e.button === 0) {
@@ -279,12 +282,13 @@ function createScene(){
 				if(pickResult.hit) {
 					console.log([pickResult.pickedMesh.position.x, pickResult.pickedMesh.position.y] );
 					if(pickResult.pickedMesh.name!="node"){
-
+						if(scene.meshes!=null)
+							scene.meshes.forEach(mesh => {if (mesh.name == "node") mesh.material.diffuseColor = new BABYLON.Color3(1,1,0);})
 
 						if(scene.getMeshByName("lines")!=null){
 							scene.removeMesh(scene.getMeshByName("lines"));
 						}
-
+						//console.log(pickResult.pickedPoint.x);
 
 						pickedOrder.push(pickResult.pickedPoint);
 						linePoints.push(pickResult.pickedPoint);
@@ -341,11 +345,11 @@ function createScene(){
 							}
 						}
 						
-						console.log(pickResult.pickedPoint);
+						//console.log(pickResult.pickedPoint);
 						//console.log(pickedOrder[pickedOrder.length-1].name);
 
 						
-						console.log(linePoints);
+						//console.log(linePoints);
 
 						lines = BABYLON.MeshBuilder.CreateLines("lines", {
 							points: linePoints,
@@ -353,9 +357,11 @@ function createScene(){
 
 						}, scene, true);
 						lines.color = new BABYLON.Color3(1, 1, 0);
-						console.log(lines);
+						//console.log(lines);
 				}
 				if(pickResult.pickedMesh.name=="node"){
+					if(scene.meshes!=null)
+							scene.meshes.forEach(mesh => {if (mesh.name == "node") mesh.material.diffuseColor = new BABYLON.Color3(1,1,0);})
 					pickResult.pickedMesh.material.diffuseColor = new BABYLON.Color3(1, 0.647, 0);
 				}
 				
@@ -367,7 +373,7 @@ function createScene(){
 
 
 		if(e.button === 1) {
-			console.log(pickResult.pickedPoint);
+			//console.log(pickResult.pickedPoint);
 
 			var newNode = BABYLON.MeshBuilder.CreateSphere("node", {diameter:0.5}, scene);
 			newNode.position = pickResult.pickedPoint;
@@ -417,10 +423,10 @@ function createScene(){
 
 
 
-	console.log(polygon_triangulation);
+	/*console.log(polygon_triangulation);
 	console.log(polygon.position);
 	console.log(polygon);
-	console.log(camera.position);
+	console.log(camera.position);*/
 
 
 	var updatePath = function(){
@@ -462,7 +468,61 @@ function createScene(){
     scene.onBeforeRenderObservable.add(function(){
        // text1.text = camera.radius.toFixed() + " m";
     });
+   
+    scene.onKeyboardObservable.add((kbInfo) => {
+	    if(kbInfo.event.keyCode==13){
+	    	if(kbInfo.type === BABYLON.KeyboardEventTypes.KEYDOWN){
+		    	if(inputLon.text && inputLat.text && inputHeight.text){
 
+		    		console.log("ima");
+		    		var lon = degrees2meters(parseFloat(inputLon.text), parseFloat(inputLat.text))[0]/10;
+					var lat = degrees2meters(parseFloat(inputLon.text), parseFloat(inputLat.text))[1]/10;
+					var lHeight = parseFloat(inputHeight.text)/10;
+					console.log(brojac);
+
+		    		linePoints.push(new BABYLON.Vector3(lon,lHeight,lat));
+		    		console.log(linePoints);
+
+		    		var newNode = BABYLON.MeshBuilder.CreateSphere("node", {diameter:0.3}, scene);
+					//var newNode = BABYLON.MeshBuilder.CreateBox("node", {size:0.3}, scene);
+					newNode.position = new BABYLON.Vector3(lon,lHeight,lat);
+					newNode.material = new BABYLON.StandardMaterial(scene);
+					newNode.material.diffuseColor = new BABYLON.Color3(1, 1, 0);
+					nodeOrder.push(newNode);
+					pickedOrder.push(new BABYLON.Vector3(lon,lHeight,lat));
+		    		//updatePath();
+
+		    		linijeGeoJSON.features.push({ "type": "Feature","geometry": {"type": "Point","coordinates": []},"properties": {"height": 0} });
+		    		linijeGeoJSON.features[brojac].geometry.coordinates = [lon,lat];
+					linijeGeoJSON.features[brojac].properties.height = lHeight-baseHeight;
+
+					brojac++;
+					console.log(brojac);
+
+					updatePath();
+
+					//lines = BABYLON.Mesh.CreateLines(null, linePoints, null, null, lines);
+					lines = BABYLON.MeshBuilder.CreateLines("lines", {
+							points: linePoints,
+							updatable: true
+
+						}, scene, true);
+						lines.color = new BABYLON.Color3(1, 1, 0);
+
+						inputLon.text = parseFloat(inputLon.text).toFixed(2).toString();
+						inputLat.text = parseFloat(inputLat.text).toFixed(2).toString();
+						
+
+		    	}
+
+		    	else
+		    		//console.log("mane");
+		    	window.alert("Niste unijeli sve koordinate!");
+	    	}	
+	    		
+	    	//console.log(parseFloat(inputLon.text));
+	    }
+});
 
 	return scene;
 }

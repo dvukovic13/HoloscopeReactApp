@@ -3,6 +3,7 @@
 <head>
 	<title>MAPA</title>
 	<script src='https://api.mapbox.com/mapbox-gl-js/v2.0.0/mapbox-gl.js'></script>
+	<script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.2.0/mapbox-gl-draw.js'></script>
 	<script src="https://unpkg.com/three@0.106.2/build/three.min.js"></script>
 	<script src="https://unpkg.com/three@0.106.2/examples/js/loaders/GLTFLoader.js"></script>
 
@@ -10,6 +11,7 @@
 
 	
 	<link href='https://api.mapbox.com/mapbox-gl-js/v2.0.0/mapbox-gl.css' rel='stylesheet' />
+	<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.2.0/mapbox-gl-draw.css' type='text/css' />
 
 	<link rel="stylesheet" href="style.css">
 
@@ -83,6 +85,15 @@
 	}
 
 
+	var Draw = new MapboxDraw();
+
+	// Map#addControl takes an optional second argument to set the position of the control.
+	// If no position is specified the control defaults to `top-right`. See the docs 
+	// for more details: https://docs.mapbox.com/mapbox-gl-js/api/#map#addcontrol
+
+	map.addControl(Draw, 'top-left');
+
+
 	map.on('load', function () {
 
 
@@ -91,9 +102,14 @@
 			data: './spratovi5.geojson'
 		});
 
+		map.addSource('primarniVod',{
+			type: 'geojson',
+			data: './primarniVod.geojson'
+		});
 
+		//console.log(JSON.parse('./primarniVod.geojson'));
 
-			
+		//Draw.add(map.getSource('primarniVod').data.features);
 
 		//console.log(map.getSource('zgrade').getClusterChildren(2));
 		var layers = map.getStyle().layers;
@@ -108,6 +124,20 @@
 			break;
 			}
 		}
+
+		map.addLayer({
+			'id': 'primarniVod',
+			'type': 'line',
+			'source': 'primarniVod',
+			'layout': {
+			'line-join': 'round',
+			'line-cap': 'round'
+			},
+			'paint': {
+			'line-color': '#ffff00',
+			'line-width': 2
+			}
+		});
 
 		if (localStorage.getItem('linijeJSON') != null) {
 
@@ -216,7 +246,7 @@
 			}
 		}, labelLayerId);
 
-
+			console.log(Draw.getAll());
 
 
 		map.on('click', '3dzgrade', function(e) {
