@@ -60,6 +60,7 @@ function createScene(){
 	points.pop();
 	points.reverse();
 	
+	console.log(localStorage.getItem('center'));
 	
 
 	//console.log(points[0]);
@@ -68,7 +69,7 @@ function createScene(){
 	
 
 	const scene = new BABYLON.Scene(engine);
-	scene.clearColor = new BABYLON.Color3(0.203, 0.2, 0.196);
+	scene.clearColor = new BABYLON.Color3(0.0549, 0.1176, 0.1647);
 
 	///////////////////////////
 	// PREDEFINISANI CVOROVI //
@@ -84,7 +85,7 @@ function createScene(){
 
 	}*/
 	
-	const camera = new BABYLON.UniversalCamera('camera', new BABYLON.Vector3(points[points.length-2].x, (bHeight + baseHeight)/2.5, points[points.length-2].y-20), scene);
+	const camera = new BABYLON.UniversalCamera('camera', new BABYLON.Vector3(points[points.length-2].x, (bHeight - baseHeight), points[points.length-2].y-20), scene);
 	//const camera = new BABYLON.ArcRotateCamera('camera',0,0,10, new BABYLON.Vector3(points[points.length-2].x, (bHeight + baseHeight)/2.5, points[points.length-2].y-20), scene);	
 	//console.log(camera.position);
 	

@@ -1,0 +1,130 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "tier": 1,
+        "id": "pv1"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            17.198002338409424,
+            44.780776511930405
+          ],
+          [
+            17.19204783439636,
+            44.77552926006596
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "vod": "pv1",
+        "tier": 1,
+        "id": "box1"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          17.19476222991943,
+          44.77792828053695
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "vod": "pv1",
+        "tier": 1,
+        "id": "box2"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          17.196940183639526,
+          44.77983219409659
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "tier": 2,
+        "id": "sv1"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            17.194772958755493,
+            44.77798920674318
+          ],
+          [
+            17.19310998916626,
+            44.778575618191105
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "vod": "sv2",
+        "tier": 2,
+        "id": "box3"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          17.193753719329834,
+          44.77837760979674
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "tier": 3,
+        "id": "tv1"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            17.193742990493774,
+            44.7783699940757
+          ],
+          [
+            17.193925380706787,
+            44.77868985349436
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "tier":3,
+        "id":"tv2"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            17.193732261657715,
+            44.77835476263062
+          ],
+          [
+            17.193517684936523,
+            44.778072980171785
+          ]
+        ]
+      }
+    }
+  ]
+}

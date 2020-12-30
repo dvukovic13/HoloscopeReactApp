@@ -22,9 +22,9 @@
 
 	
 
-	<div id="container" style="display: inline-block;">
-	<div id='map' style="width: 1800px;	height: 948px"></div>
-	
+	<div class = "canvas-container" id="container" style="display: inline-block;">
+		<div id='renderCanvas' style="width: 1920px;	height: 1080px; position: absolute;"></div>
+		<button onclick="redir()" style="position:absolute; ">EDIT</button>
 	</div>
 	
 	
@@ -33,9 +33,9 @@
 	window.redir = redir;
 	</script>-->
 
-</canvas>
-<button onclick="redir()" style="float: right">EDIT</button>
-<input type="text" onkeypress="ocisti()">
+
+
+<!-- <input type="text" onkeypress="ocisti()"> -->
 <script type="text/javascript">
 
 	var izabrana = null;
@@ -52,23 +52,30 @@
 
 
 	mapboxgl.accessToken = 'pk.eyJ1IjoiZHZ1a292aWMiLCJhIjoiY2toaHBpczUxMHhpYjJ5bndlNG05dWV2cCJ9.dNwJsrJM0OsLj46OGKSJIQ';
+
 	const INITIAL_VIEW_STATE = {
-	  latitude: 17.1974,
-	  longitude: 44.7778,
-	  zoom: 15.5,
-	  bearing: 0,
-	  pitch: 60,
-	};
+		  latitude: 17.1974,
+		  longitude: 44.7778,
+		  zoom: 15.5,
+		  bearing: 0,
+		  pitch: 60,
+		};
+
+	
+
+	
 	var map = new mapboxgl.Map({
 
-		container: 'map',
-		style: 'mapbox://styles/mapbox/dark-v10',
+		container: 'renderCanvas',
+		style: 'mapbox://styles/haxzie/ck0aryyna2lwq1crp7fwpm5vz',
 		center: [INITIAL_VIEW_STATE.latitude,INITIAL_VIEW_STATE.longitude],
 		zoom: 15.5,
-		container: 'map',
+		
 		antialias: true
 
 	});
+
+
 
 	var lines = new Array();
 	lines.push([]);
@@ -102,10 +109,10 @@
 			data: './spratovi5.geojson'
 		});
 
-		map.addSource('primarniVod',{
+		/*map.addSource('primarniVod',{
 			type: 'geojson',
 			data: './primarniVod.geojson'
-		});
+		});*/
 
 		//console.log(JSON.parse('./primarniVod.geojson'));
 
@@ -125,7 +132,7 @@
 			}
 		}
 
-		map.addLayer({
+	/*	map.addLayer({
 			'id': 'primarniVod',
 			'type': 'line',
 			'source': 'primarniVod',
@@ -137,7 +144,7 @@
 			'line-color': '#ffff00',
 			'line-width': 2
 			}
-		});
+		});*/
 
 		if (localStorage.getItem('linijeJSON') != null) {
 
@@ -208,6 +215,7 @@
 				'fill-extrusion-opacity':0.3
 
 			}
+
 		});
 
 
@@ -217,10 +225,10 @@
 			  "type": "FeatureCollection",
 			  "features": []
 			}
-			});
+		});	
 
 
-			map.addLayer({
+		map.addLayer({
 
 			"id": "highlight",
 			"source": "currentBuildings",
@@ -244,12 +252,22 @@
 			,
 			'fill-extrusion-opacity': 0.5
 			}
+			
 		}, labelLayerId);
 
-			console.log(Draw.getAll());
+		console.log(Draw.getAll());
 
 
 		map.on('click', '3dzgrade', function(e) {
+			console.log("center"+ map.getCenter());
+			console.log("lat: "+map.getCenter().lat);
+			console.log("lon: "+map.getCenter().lng);
+			console.log(map.getZoom());
+
+			localStorage.setItem('lat', map.getCenter().lat);
+			localStorage.setItem('lon', map.getCenter().lng);
+			localStorage.setItem('zoom', map.getZoom());
+
 			map.getSource('currentBuildings').setData({
 			  "type": "FeatureCollection",
 			  "features": e.features
@@ -277,19 +295,24 @@
 
 	map.on('style.load', function () {
 
-
-		map.flyTo({
+		if (localStorage.getItem('lat') === null || localStorage.getItem('lon') === null || localStorage.getItem('zoom') === null){
+		
+		}
+		else{
+			
+			map.flyTo({
 		// These options control the ending camera position: centered at
 		// the target, at zoom level 9, and north up.
-
-			zoom: 15.5,
+			
+			center:[localStorage.getItem('lon'), localStorage.getItem('lat')],
+			zoom: localStorage.getItem('zoom')+1,
 			bearing: 0,
 			pitch: 60,
 			 
 			// These options control the flight curve, making it move
 			// slowly and zoom out almost completely before starting
 			// to pan.
-			speed: 0.2, // make the flying slow
+			speed: 0.5, // make the flying slow
 			curve: 1, // change the speed at which it zooms out
 			 
 			// This can be any easing function: it takes a number between
@@ -301,6 +324,10 @@
 			// this animation is considered essential with respect to prefers-reduced-motion
 			essential: true
 		});
+			
+		}
+
+		
 	});
 </script>
 

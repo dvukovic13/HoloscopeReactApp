@@ -1,17 +1,17 @@
 button{
 	left:94%;
-  	top:1em;
+	top:1em;
 	height: 40px;
 	width: 80px;
 	padding: 8px;
-    font-size: 0.8rem;
-    font-weight: 900;
-    color: #0000ff;
-    background-color: #FFFFFF;
-    text-align: center;
-    text-transform: uppercase;
-    text-decoration: none;
-    border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: #0000ff;
+  background-color: #FFFFFF;
+  text-align: center;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 12px;
 
 }
 
@@ -21,6 +21,7 @@ button{
 	height: 100%;
 }
 html,body{
+  overflow: hidden;
   margin:0;
   height: 100%;
 }

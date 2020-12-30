@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Hijerarhija</title>
+
+	<script src='https://api.mapbox.com/mapbox-gl-js/v2.0.0/mapbox-gl.js'></script>
+	<link href='https://api.mapbox.com/mapbox-gl-js/v2.0.0/mapbox-gl.css' rel='stylesheet' />
+
+</head>
+<body>
+	
+	<div id='map' style='width: 1900px; height: 990px; background-color: #649ec4'>
+		<ul id="lista" style="border: 1px solid white; width: 300px; display: inline-block; position: absolute; z-index: 3; color: white; font-size: 15px">
+		
+		</ul>
+	</div>
+<script>
+
+	mapboxgl.accessToken = 'pk.eyJ1IjoiZHZ1a292aWMiLCJhIjoiY2toaHBpczUxMHhpYjJ5bndlNG05dWV2cCJ9.dNwJsrJM0OsLj46OGKSJIQ';
+
+	const INITIAL_VIEW_STATE = {
+	  latitude: 17.1974,
+	  longitude: 44.7778,
+	  zoom: 15.5,
+	  bearing: 0,
+	  pitch: 60,
+	};
+
+	var map = new mapboxgl.Map({
+	container: 'map',
+	style: 'mapbox://styles/haxzie/ck0aryyna2lwq1crp7fwpm5vz', // stylesheet location
+	center: [INITIAL_VIEW_STATE.latitude, INITIAL_VIEW_STATE.longitude], // starting position [lng, lat]
+	zoom: INITIAL_VIEW_STATE.zoom // starting zoom
+	});
+
+	map.on('load', function () {
+
+
+		map.addSource('vodovi', {
+			type: 'geojson',
+			data: './vodovi.geojson'
+		});
+
+		
+
+		var vodovi;
+		var lista = document.getElementById('lista');
+
+		function loadJSON(callback) {   
+			var xobj = new XMLHttpRequest();
+			xobj.overrideMimeType("application/json");
+			xobj.open('GET', 'vodovi.geojson', true);
+			xobj.onreadystatechange = function () {
+	        	if (xobj.readyState == 4 && xobj.status == "200") {
+	            // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+	          	callback(xobj.responseText);
+	        	}
+	        	if(vodovi){
+	        		//console.log(vodovi.length);
+	        		for(var i = 0; i<vodovi.features.length; i++){
+		 				console.log(vodovi.features[i]);
+
+
+
+		 				var li = document.createElement("li");
+
+		 				switch(vodovi.features[i].properties.tier){
+		 					case 1: li.style.color = "yellow";
+		 					break;
+		 					case 2: li.style.color = "red";
+		 					li.style.paddingLeft = "20px";
+		 					break;
+		 					case 3: li.style.color = "blue";
+		 					li.style.paddingLeft = "40px";
+		 					break;
+		 					default: li.style.color = "white";
+		 				}
+
+
+		 				li.appendChild(document.createTextNode(vodovi.features[i].properties.id));
+
+
+		 				lista.appendChild(li);
+	 				}
+	        	}
+	    	};
+	    	xobj.send(null);  
+
+ 		}
+
+ 		loadJSON(function(response){
+ 			vodovi = JSON.parse(response);
+ 			//console.log(vodovi.features[0].properties.id);
+
+ 			
+ 		});
+
+
+ 	//	console.log(vodovi);
+ 		
+
+
+
+
+
+
+
+		map.loadImage(
+		'./kutija.png',
+			function (error, image) {
+			if (error) throw error;
+			map.addImage('kutija', image);
+			
+			map.addLayer({
+			'id': 'points',
+			'type': 'symbol',
+			'source': 'vodovi',
+			'layout': {
+			'icon-image': 'kutija',
+			'icon-size': 0.06
+			}
+			});
+			}
+		);
+
+
+		map.addLayer({
+			'id': 'vodovi',
+			'type': 'line',
+			'source': 'vodovi',
+			'layout': {
+			'line-join': 'round',
+			'line-cap': 'round'
+			},
+			'paint': {
+			//'line-color': '#ffff00',
+			'line-color':[
+				'case',
+				['==', ['get', 'tier'], 1],
+				'yellow',
+				['==', ['get', 'tier'], 2],
+				'red',
+				['==', ['get', 'tier'], 3],
+				'blue',
+				'yellow'
+
+			],
+
+			'line-width': 3,
+			'line-opacity': 0.7
+			}
+		});
+	});
+
+</script>
+
+</body>
+</html>
